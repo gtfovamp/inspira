@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "405701324143",
+    "project_id": "inspira-59871",
+    "storage_bucket": "inspira-59871.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405701324143:android:c9d36cf35f14abc85dcc9a",
+        "android_client_info": {
+          "package_name": "com.example.inspira"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTCXa4E3VRPg2Cy0aP4vyBzAUNmIPBi8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
