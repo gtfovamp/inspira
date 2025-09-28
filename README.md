@@ -1,68 +1,86 @@
-???? Inspira - Flutter.Drawing App for iOS
-
-## ✨ Synopsis
-The
-A.
-
-**Inspira** is a newer iOS mobile app developed using **Flutter** and **Firebase**. You can register and login, create and modify drawings on a canvas, add images from the device's gallery, save and export drawings and modify images in **Firebase**. **Figma designs** are strictly adhered to for a minimalist and user-obsessed user experience.
+# 🎨 Inspira - Flutter iOS Drawing App
 
 ---
 
-## ???? Features
+## ✨ Synopsis
+**Inspira** is a modern iOS mobile app built with **Flutter** and **Firebase**.  
+It allows users to:  
+- Register and login via email  
+- Create and edit drawings on a canvas  
+- Import images from the device gallery  
+- Save and export drawings  
+- Manage images in **Firebase**  
 
-### ???? Authorization
-We
-- Sign-up and login through email and password.
-- Input validation:
-- ✔️ Check for email structure verification
-- ✅ Password of minimum 6 character length
-- Firebase Authentication integration
-- Friendly error handling of the error messages from Firebase (e.g., "User already exists", "Invalid password")
-- Successful login to picture gallery
+The interface strictly follows **Figma designs** for a minimal, user-focused experience.
 
-### ???? Drawing Editor
-The
-- Canvas without support for:
-- ???? Brushes of variable size and color
-- ???? Eraser
-- ???? Colour picker
-- Load pictures from device photo library
--Sharing of sketches through **native share popup**
-- Save drawings to Firebase:
-- ???? Upload picture files
-- ???? Keep metadata (name, date, writer)
-- ???? Notify on successful saving using `flutter_local_notifications`
+---
 
-### ???? Image Collection
-- Show user images in **grid** or **list**
-- Preview caching for seamless loading
--Tap on photo to open or edit in editor
-- Produce a painting on a newly unused canvas
-- Logout option on confirmation dialog in AppBar
+## 🛠 Features
+
+### 🔑 Authorization
+- Email and password registration and login  
+- Input validation:  
+  - ✔️ Email format verification  
+  - ✅ Password minimum length of 6 characters  
+- Firebase Authentication integration  
+- Friendly handling of Firebase errors (e.g., "User already exists", "Invalid password")  
+- Successful login redirects to the image gallery  
+
+### ✏️ Drawing Editor
+- Canvas with support for:  
+  - 🖌️ Brushes of adjustable size and color  
+  - 🩹 Eraser  
+  - 🎨 Color picker  
+- Load images from the device gallery  
+- Share drawings via **native share popup**  
+- Save drawings to Firebase:  
+  - 📤 Upload image files  
+  - 🗂 Store metadata (name, date, author)  
+  - 🔔 Notify on successful save using `flutter_local_notifications`  
+
+### 🖼 Image Gallery
+- Display user images in **grid** or **list**  
+- Preview caching for fast loading  
+- Tap an image to view or edit in the editor  
+- Create a new drawing on an empty canvas  
+- Logout option with confirmation dialog in AppBar  
 
 ---
 
 ## ⚡ Non-Functional Requirements
-- Original application's name
-- UI completely corresponds to Figma designs (fonts, padding, colors)
-- Logos and symbols of the implemented design
-- Proper logic with well-structured coding and encapsulation of the state management
-- Navigator 2.0 with routing
-- Async actions with `Future` and `Stream`
-- Handling mistakes with friendly alerts
--Skeleton screens and data loaders on data loading
-- Internet connectivity check
+- Original app name  
+- UI fully matches Figma designs (fonts, colors, spacing)  
+- Proper use of design logos and icons  
+- Clean code with clear separation of logic and state management  
+- Navigator 2.0 routing  
+- Async operations with `Future` and `Stream`  
+- User-friendly error handling  
+- Skeleton screens and loaders during data fetch  
+- Internet connectivity check  
 
 ---
 
-## ???? Technologies
-- **Platform:** iOS (iPhone)
-- **Language:** Dart - **Platform:** Flutter
-
-- **Database & Storage:** Firebase (Auth, Firestore, Storage)
-
-- **Notifications:** `flutter
+## 🛠 Technologies
+- **Platform:** iOS (iPhone)  
+- **Language:** Dart  
+- **Framework:** Flutter  
+- **Database & Storage:** Firebase (Auth, Firestore, Storage)  
+- **Notifications:** `flutter_local_notifications`  
 
 ---
 
-## ????️ Directory Structure - `lib/` - Основной код Flutter'app - `config/` - Application configuration and Firebase initialization - `features/` - Editor, galleries and login Features modules - `shared/` -Util functions and Shared widgets - `assets/` - Bilder, Iconen und Figma- --- ## ???? Installation 1. Kopieren des Repositorien: #./ git clone <url-of-the
+## 📂 Project Structure
+- `lib/` – Main Flutter code  
+  - `config/` – App configuration and Firebase initialization  
+  - `features/` – Editor, gallery, and authentication modules  
+  - `shared/` – Utilities and shared widgets  
+- `assets/` – Images, icons, and Figma assets  
+
+---
+
+## 🚀 Installation
+```bash
+git clone <repository-url>
+cd inspira
+flutter pub get
+flutter run
