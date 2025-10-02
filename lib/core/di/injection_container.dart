@@ -16,8 +16,9 @@ import '../../features/home/domain/usecases/get_images_usecase.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 
 // Image
-import '../../features/image/data/datasources/image_remote_data_source.dart';
+import '../../features/image/data/datasources/image_remote_data_source_impl.dart';
 import '../../features/image/data/repositories/image_repository_impl.dart';
+import '../../features/image/domain/repositories/image_remote_data_source.dart';
 import '../../features/image/domain/repositories/image_repository.dart';
 import '../../features/image/domain/usecases/image_usecases.dart';
 import '../../features/image/presentation/bloc/image_bloc.dart';

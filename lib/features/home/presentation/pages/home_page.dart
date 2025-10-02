@@ -24,11 +24,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Загружаем изображения при первом открытии
     _homeBloc.add(GetImagesEvent());
   }
 
-  // Обновляем данные при возврате на экран
+  @override
   void didPopNext() {
     if (mounted) {
       _homeBloc.add(RefreshImagesEvent());

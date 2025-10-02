@@ -14,18 +14,17 @@ class HomeAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 120,
       decoration: BoxDecoration(
-        color: const Color(0xFF604490).withOpacity(0.01),
+        color: const Color(0xFF604490).withValues(alpha: 0.01),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF604490).withOpacity(0.01),
+            color: const Color(0xFF604490).withValues(alpha: 0.01),
             blurRadius: 68,
             offset: const Offset(0, 0),
             blurStyle: BlurStyle.inner,
           ),
           BoxShadow(
-            color: const Color(0xFF604490).withOpacity(0.5),
+            color: const Color(0xFF604490).withValues(alpha: 0.5),
             blurRadius: 40,
             offset: const Offset(0, 1),
             blurStyle: BlurStyle.inner,
@@ -38,64 +37,59 @@ class HomeAppBar extends StatelessWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 10,
-                bottom: 10,
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 10,
+            bottom: 10,
+          ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => _showLogoutDialog(context),
+                child: const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Icon(
+                    Icons.logout,
+                    color: Color(0xFFE94647),
+                    size: 26,
+                  ),
+                ),
               ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => _showLogoutDialog(context),
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Icon(
-                        Icons.logout,
-                        color: Color(0xFFE94647),
-                        size: 26,
-                      ),
-                    ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Галерея',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.roboto(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFEEEEEE),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Галерея',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.roboto(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await context.push<bool>('/image');
-                      if (result == true && context.mounted) {
-                        context.read<HomeBloc>().add(RefreshImagesEvent());
-                      }
-                    },
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Icon(
-                        Icons.format_paint,
-                        color: Color(0xFFFFFFFF),
-                        size: 26,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: () async {
+                  final result = await context.push<bool>('/image');
+                  if (result == true && context.mounted) {
+                    context.read<HomeBloc>().add(RefreshImagesEvent());
+                  }
+                },
+                child: const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Icon(
+                    Icons.format_paint,
+                    color: Color(0xFFFFFFFF),
+                    size: 26,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -111,7 +105,7 @@ class HomeAppBar extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: const Color(0xFF8924E7).withOpacity(0.3),
+              color: const Color(0xFF8924E7).withValues(alpha: 0.3),
               width: 1,
             ),
           ),

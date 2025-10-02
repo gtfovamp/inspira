@@ -12,4 +12,3 @@ void main() async {
   await AppConfig.initialize();
   runApp(const App());
 }
-

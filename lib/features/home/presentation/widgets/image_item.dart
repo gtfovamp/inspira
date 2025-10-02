@@ -34,7 +34,7 @@ class ImageItem extends StatelessWidget {
         width: 156,
         height: 156,
         decoration: BoxDecoration(
-          color: const Color(0xFF101010).withOpacity(0.15),
+          color: const Color(0xFF101010).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: ClipRRect(
@@ -54,9 +54,9 @@ class ImageItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF8924E7).withOpacity(0.1),
-            const Color(0xFF6A46F9).withOpacity(0.15),
-            const Color(0xFF8924E7).withOpacity(0.1),
+            const Color(0xFF8924E7).withValues(alpha: 0.1),
+            const Color(0xFF6A46F9).withValues(alpha: 0.15),
+            const Color(0xFF8924E7).withValues(alpha: 0.1),
           ],
           stops: const [0.0, 0.5, 1.0],
         ),
@@ -79,9 +79,9 @@ class ImageItem extends StatelessWidget {
                 end: Alignment(shimmerValue, 0),
                 colors: [
                   Colors.transparent,
-                  const Color(0xFF8924E7).withOpacity(0.3),
-                  const Color(0xFF6A46F9).withOpacity(0.4),
-                  const Color(0xFF8924E7).withOpacity(0.3),
+                  const Color(0xFF8924E7).withValues(alpha: 0.3),
+                  const Color(0xFF6A46F9).withValues(alpha: 0.4),
+                  const Color(0xFF8924E7).withValues(alpha: 0.3),
                   Colors.transparent,
                 ],
                 stops: const [0.0, 0.3, 0.5, 0.7, 1.0],
@@ -92,7 +92,7 @@ class ImageItem extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF).withOpacity(0.1),
+                  color: const Color(0xFFFFFFFF).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
@@ -102,7 +102,7 @@ class ImageItem extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        const Color(0xFFFFFFFF).withOpacity(0.7),
+                        const Color(0xFFFFFFFF).withValues(alpha: 0.7),
                       ),
                     ),
                   ),

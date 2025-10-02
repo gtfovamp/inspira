@@ -2,8 +2,8 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../home/domain/entities/image_entity.dart';
+import '../../domain/repositories/image_remote_data_source.dart';
 import '../../domain/repositories/image_repository.dart';
-import '../datasources/image_remote_data_source.dart';
 
 class ImageRepositoryImpl implements ImageRepository {
   final ImageRemoteDataSource remoteDataSource;

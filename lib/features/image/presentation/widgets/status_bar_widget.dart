@@ -17,18 +17,17 @@ class StatusBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 120,
       decoration: BoxDecoration(
-        color: const Color(0xFF604490).withOpacity(0.01),
+        color: const Color(0xFF604490).withValues(alpha: 0.01),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF604490).withOpacity(0.01),
+            color: const Color(0xFF604490).withValues(alpha: 0.01),
             blurRadius: 68,
             offset: const Offset(0, 0),
             blurStyle: BlurStyle.inner,
           ),
           BoxShadow(
-            color: const Color(0xFF604490).withOpacity(0.5),
+            color: const Color(0xFF604490).withValues(alpha: 0.5),
             blurRadius: 40,
             offset: const Offset(0, 1),
             blurStyle: BlurStyle.inner,
@@ -41,59 +40,54 @@ class StatusBarWidget extends StatelessWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 10,
-                bottom: 10,
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 10,
+            bottom: 10,
+          ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: onBackPressed,
+                child: const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
               ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: onBackPressed,
-                    child: const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.white,
-                        size: 26,
-                      ),
-                    ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.roboto(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFEEEEEE),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.roboto(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: onSavePressed,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      child: const Icon(
-                        Icons.done,
-                        color: Color(0xFFFFFFFF),
-                        size: 26,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: onSavePressed,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: const Icon(
+                    Icons.done,
+                    color: Color(0xFFFFFFFF),
+                    size: 26,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

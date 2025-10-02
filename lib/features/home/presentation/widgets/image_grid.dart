@@ -109,6 +109,7 @@ class _ImageGridState extends State<ImageGrid> with TickerProviderStateMixin {
 
   Future<void> _onImageTap(BuildContext context, int index) async {
     final image = widget.images[index];
+    final homeBloc = context.read<HomeBloc>();
 
     await context.push<bool>('/image', extra: {
       'image': image.image,
@@ -116,7 +117,7 @@ class _ImageGridState extends State<ImageGrid> with TickerProviderStateMixin {
     });
 
     if (mounted) {
-      context.read<HomeBloc>().add(RefreshImagesEvent());
+      homeBloc.add(RefreshImagesEvent());
     }
   }
 }

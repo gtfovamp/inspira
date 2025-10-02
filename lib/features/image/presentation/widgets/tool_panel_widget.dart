@@ -1,5 +1,7 @@
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,23 +36,39 @@ class ToolPanelWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _ToolButton(
-            icon: Icons.share,
+            customIcon: SvgPicture.asset(
+              'assets/icons/save_icon.svg',
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ),
             onTap: () => _handleShare(context),
             tooltip: 'Поделиться',
           ),
           _ToolButton(
-            icon: Icons.image,
+            icon: Icons.photo_outlined,
             onTap: () => _handleImportImage(context),
             tooltip: 'Импорт изображения',
           ),
           _ToolButton(
-            icon: Icons.brush,
+            icon: CupertinoIcons.pen,
             onTap: () => _showBrushSizeDialog(context),
             tooltip: 'Размер кисти',
             badge: brushSize.toInt().toString(),
           ),
           _ToolButton(
-            icon: Icons.auto_fix_high,
+            customIcon: SvgPicture.asset(
+              'assets/icons/erase_icon.svg',
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ),
             onTap: onEraserToggle ?? () {},
             tooltip: isEraserMode ? 'Кисть' : 'Ластик',
             isActive: isEraserMode,
@@ -67,33 +85,46 @@ class ToolPanelWidget extends StatelessWidget {
   }
 
   Future<void> _handleShare(BuildContext context) async {
-    if (currentImage != null) {
-      try {
-        await Share.shareXFiles([
-          XFile.fromData(
-            currentImage!,
-            mimeType: 'image/png',
-            name: 'drawing.png',
-          ),
-        ]);
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Ошибка при экспорте: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+    if (currentImage == null) {
+      if (context.mounted) {
+        _showSnackBar(context, 'Нет изображения для экспорта', isError: true);
+      }
+      return;
+    }
+
+    try {
+      final file = XFile.fromData(
+        currentImage!,
+        mimeType: 'image/png',
+        name: 'drawing_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
+
+      final box = context.findRenderObject() as RenderBox?;
+      final sharePositionOrigin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null;
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [file],
+          text: 'Check out this drawing!',
+          subject: 'My drawing',
+          title: 'Drawing export',
+          sharePositionOrigin: sharePositionOrigin,
+        ),
+      );
+    } catch (e) {
+      if (context.mounted) {
+        _showSnackBar(context, 'Ошибка при экспорте: $e', isError: true);
       }
     }
   }
 
   Future<void> _handleImportImage(BuildContext context) async {
     try {
-      final XFile? image = await ImagePicker().pickImage(
+      final image = await ImagePicker().pickImage(
         source: ImageSource.gallery,
-        imageQuality: 90,
+        imageQuality: 95,
       );
 
       if (image != null) {
@@ -102,14 +133,20 @@ class ToolPanelWidget extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Ошибка при загрузке изображения: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar(context, 'Ошибка при загрузке изображения: $e', isError: true);
       }
     }
+  }
+
+  void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _showBrushSizeDialog(BuildContext context) {
@@ -119,6 +156,7 @@ class ToolPanelWidget extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2D2D2D),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Размер кисти',
           style: GoogleFonts.roboto(
@@ -135,7 +173,7 @@ class ToolPanelWidget extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -159,18 +197,25 @@ class ToolPanelWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Slider(
-                value: tempBrushSize,
-                min: 1.0,
-                max: 50.0,
-                divisions: 49,
-                activeColor: const Color(0xFF604490),
-                inactiveColor: const Color(0xFF604490).withOpacity(0.3),
-                onChanged: (value) {
-                  setDialogState(() {
-                    tempBrushSize = value;
-                  });
-                },
+              SliderTheme(
+                data: SliderThemeData(
+                  activeTrackColor: const Color(0xFF604490),
+                  inactiveTrackColor: const Color(0xFF604490).withValues(alpha: 0.3),
+                  thumbColor: const Color(0xFF604490),
+                  overlayColor: const Color(0xFF604490).withValues(alpha: 0.2),
+                  trackHeight: 4,
+                ),
+                child: Slider(
+                  value: tempBrushSize,
+                  min: 1.0,
+                  max: 50.0,
+                  divisions: 49,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      tempBrushSize = value;
+                    });
+                  },
+                ),
               ),
             ],
           ),
@@ -190,7 +235,10 @@ class ToolPanelWidget extends StatelessWidget {
             },
             child: Text(
               'Применить',
-              style: GoogleFonts.roboto(color: const Color(0xFF604490)),
+              style: GoogleFonts.roboto(
+                color: const Color(0xFF604490),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -204,21 +252,19 @@ class ToolPanelWidget extends StatelessWidget {
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: Container(
-          width: 343,
-          height: 285,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                const Color(0xFF5C5C5C),
-                const Color(0xFF999999).withOpacity(0.97),
+                Color(0xFF5C5C5C),
+                Color(0xFF999999),
               ],
             ),
             borderRadius: BorderRadius.circular(13),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 100,
                 offset: const Offset(0, 10),
               ),
@@ -228,20 +274,20 @@ class ToolPanelWidget extends StatelessWidget {
             children: [
               Positioned(
                 right: 9,
-                top: -13,
+                top: -14,
                 child: Container(
                   width: 47,
-                  height: 13,
-                  decoration: BoxDecoration(
+                  height: 14,
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        const Color(0xFF5C5C5C),
-                        const Color(0xFF999999).withOpacity(0.97),
+                        Color(0xFF5C5C5C),
+                        Color(0xFF999999),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(13),
+                    borderRadius: BorderRadius.all(Radius.circular(13)),
                   ),
                 ),
               ),
@@ -264,7 +310,8 @@ class ToolPanelWidget extends StatelessWidget {
 }
 
 class _ToolButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final VoidCallback onTap;
   final String tooltip;
   final String? badge;
@@ -272,13 +319,15 @@ class _ToolButton extends StatelessWidget {
   final bool isActive;
 
   const _ToolButton({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.onTap,
     required this.tooltip,
     this.badge,
     this.color,
     this.isActive = false,
-  });
+  }) : assert(icon != null || customIcon != null,
+  'Either icon or customIcon must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -295,18 +344,19 @@ class _ToolButton extends StatelessWidget {
             height: 38,
             decoration: BoxDecoration(
               color: isActive
-                  ? Colors.white.withOpacity(0.4)
-                  : Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(100),
+                  ? Colors.white.withValues(alpha: 0.4)
+                  : Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
             ),
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(
-                  icon,
-                  color: iconColor,
-                  size: 22,
-                ),
+                customIcon ??
+                    Icon(
+                      icon,
+                      color: iconColor,
+                      size: 22,
+                    ),
                 if (badge != null)
                   Positioned(
                     top: 4,
@@ -343,6 +393,7 @@ class _ToolButton extends StatelessWidget {
   }
 }
 
+
 class _ColorGrid extends StatelessWidget {
   final Color selectedColor;
   final Function(Color) onColorSelected;
@@ -352,45 +403,44 @@ class _ColorGrid extends StatelessWidget {
     required this.onColorSelected,
   });
 
-  List<List<Color>> _generateColorPalette() {
-    final List<List<Color>> palette = [];
+  static const List<Color> _baseColors = [
+    Colors.grey,
+    Color(0xFF3A87FD),
+    Color(0xFF5E30EB),
+    Color(0xFFBE38F3),
+    Color(0xFFE63B7A),
+    Color(0xFFFE6250),
+    Color(0xFFFF8648),
+    Color(0xFFFFB43F),
+    Color(0xFFFECB3E),
+    Color(0xFFFFF76B),
+    Color(0xFFE4EF65),
+    Color(0xFF96D35F),
+  ];
 
-    final List<Color> baseColors = [
-      Colors.grey,
-      const Color(0xFF3A87FD),
-      const Color(0xFF5E30EB),
-      const Color(0xFFBE38F3),
-      const Color(0xFFE63B7A),
-      const Color(0xFFFE6250),
-      const Color(0xFFFF8648),
-      const Color(0xFFFFB43F),
-      const Color(0xFFFECB3E),
-      const Color(0xFFFFF76B),
-      const Color(0xFFE4EF65),
-      const Color(0xFF96D35F),
-    ];
+  List<List<Color>> _generateColorPalette() {
+    final palette = <List<Color>>[];
 
     for (int row = 0; row < 10; row++) {
-      final List<Color> colorRow = [];
+      final colorRow = <Color>[];
 
       for (int col = 0; col < 12; col++) {
-        Color color;
+        final Color color;
 
         if (row == 0) {
-          final double intensity = 1.0 - (col / 11);
+          final intensity = 1.0 - (col / 11);
           color = Color.lerp(Colors.black, Colors.white, intensity)!;
         } else {
-          final baseColor = baseColors[col];
-          final HSLColor hslColor = HSLColor.fromColor(baseColor);
+          final baseColor = _baseColors[col];
+          final hslColor = HSLColor.fromColor(baseColor);
 
-          final double lightnessMultiplier = 1.0 - (row - 1) * 0.1;
-          final double saturationMultiplier = 0.3 + (row - 1) * 0.08;
+          final lightnessMultiplier = 1.0 - (row - 1) * 0.1;
+          final saturationMultiplier = 0.3 + (row - 1) * 0.08;
 
-          color = hslColor.withLightness(
-              (hslColor.lightness * lightnessMultiplier).clamp(0.0, 1.0)
-          ).withSaturation(
-              (saturationMultiplier).clamp(0.0, 1.0)
-          ).toColor();
+          color = hslColor
+              .withLightness((hslColor.lightness * lightnessMultiplier).clamp(0.0, 1.0))
+              .withSaturation(saturationMultiplier.clamp(0.0, 1.0))
+              .toColor();
         }
 
         colorRow.add(color);
@@ -416,8 +466,8 @@ class _ColorGrid extends StatelessWidget {
                   GestureDetector(
                     onTap: () => onColorSelected(color),
                     child: Container(
-                      width: 26,
-                      height: 26,
+                      width: 23,
+                      height: 23,
                       decoration: BoxDecoration(
                         color: color,
                         border: _colorsEqual(selectedColor, color)
@@ -434,8 +484,8 @@ class _ColorGrid extends StatelessWidget {
   }
 
   bool _colorsEqual(Color a, Color b) {
-    return (a.red - b.red).abs() < 5 &&
-        (a.green - b.green).abs() < 5 &&
-        (a.blue - b.blue).abs() < 5;
+    return (a.r - b.r).abs() < 0.02 &&
+        (a.g - b.g).abs() < 0.02 &&
+        (a.b - b.b).abs() < 0.02;
   }
 }

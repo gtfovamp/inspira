@@ -3,14 +3,10 @@ import '../../domain/entities/image_entity.dart';
 
 class ImageModel extends ImageEntity {
   const ImageModel({
-    required String id,
-    required String image,
-    required DateTime createdAt,
-  }) : super(
-    id: id,
-    image: image,
-    createdAt: createdAt,
-  );
+    required super.id,
+    required super.image,
+    required super.createdAt,
+  });
 
   factory ImageModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return ImageModel(

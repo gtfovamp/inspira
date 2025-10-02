@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -41,52 +42,80 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   List<List<DrawingPoint>> strokes = [];
   List<DrawingPoint> currentStroke = [];
   final GlobalKey _canvasKey = GlobalKey();
-  ui.Image? backgroundImage;
+  ui.Image? _backgroundImage;
 
   @override
   void initState() {
     super.initState();
-    _loadBackgroundImage();
+    if (widget.backgroundImage != null) {
+      _loadBackgroundImage();
+    }
   }
 
   @override
   void didUpdateWidget(DrawingCanvas oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.backgroundImage != oldWidget.backgroundImage) {
-      _loadBackgroundImage();
+      if (widget.backgroundImage != null) {
+        _loadBackgroundImage();
+      } else {
+        if (mounted) {
+          setState(() {
+            _backgroundImage = null;
+          });
+        }
+      }
     }
   }
 
   Future<void> _loadBackgroundImage() async {
-    if (widget.backgroundImage != null) {
+    try {
       final codec = await ui.instantiateImageCodec(widget.backgroundImage!);
       final frame = await codec.getNextFrame();
-      setState(() {
-        backgroundImage = frame.image;
-      });
-    } else {
-      setState(() {
-        backgroundImage = null;
-      });
+      final image = frame.image;
+
+      if (mounted) {
+        setState(() {
+          _backgroundImage = image;
+        });
+      }
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (mounted) {
+        await _captureCanvas();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading background image: $e');
+      }
     }
   }
 
   void _onPanStart(DragStartDetails details) {
-    final RenderBox renderBox = _canvasKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox? renderBox =
+    _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
     final localPosition = renderBox.globalToLocal(details.globalPosition);
 
-    currentStroke = [
-      DrawingPoint(
-        offset: localPosition,
-        color: widget.brushColor,
-        strokeWidth: widget.brushSize,
-        isEraser: widget.isEraserMode,
-      ),
-    ];
+    setState(() {
+      currentStroke = [
+        DrawingPoint(
+          offset: localPosition,
+          color: widget.brushColor,
+          strokeWidth: widget.brushSize,
+          isEraser: widget.isEraserMode,
+        ),
+      ];
+    });
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    final RenderBox renderBox = _canvasKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox? renderBox =
+    _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
     final localPosition = renderBox.globalToLocal(details.globalPosition);
 
     setState(() {
@@ -113,15 +142,25 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
   Future<void> _captureCanvas() async {
     try {
-      final RenderRepaintBoundary boundary =
-      _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      final ui.Image image = await boundary.toImage(pixelRatio: 1.0);
-      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData != null) {
+      await Future.delayed(const Duration(milliseconds: 150));
+
+      final RenderRepaintBoundary? boundary =
+      _canvasKey.currentContext?.findRenderObject()
+      as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
+      if (byteData != null && mounted) {
         widget.onImageChanged?.call(byteData.buffer.asUint8List());
       }
     } catch (e) {
-      print('Error capturing canvas: $e');
+      if (kDebugMode) {
+        print('Error capturing canvas: $e');
+      }
     }
   }
 
@@ -129,6 +168,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
     setState(() {
       strokes.clear();
       currentStroke.clear();
+      _backgroundImage = null;
     });
     _captureCanvas();
   }
@@ -136,29 +176,31 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: 333,
         height: 508,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: RepaintBoundary(
-            key: _canvasKey,
-            child: GestureDetector(
-              onPanStart: _onPanStart,
-              onPanUpdate: _onPanUpdate,
-              onPanEnd: _onPanEnd,
-              child: CustomPaint(
-                painter: DrawingPainter(
-                  backgroundImage: backgroundImage,
-                  strokes: strokes,
-                  currentStroke: currentStroke,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: RepaintBoundary(
+              key: _canvasKey,
+              child: GestureDetector(
+                onPanStart: _onPanStart,
+                onPanUpdate: _onPanUpdate,
+                onPanEnd: _onPanEnd,
+                child: CustomPaint(
+                  painter: DrawingPainter(
+                    backgroundImage: _backgroundImage,
+                    strokes: strokes,
+                    currentStroke: currentStroke,
+                  ),
+                  size: const Size(333, 508),
                 ),
-                size: const Size(333, 508),
               ),
             ),
           ),
@@ -181,17 +223,41 @@ class DrawingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()..color = Colors.white,
+    );
 
     if (backgroundImage != null) {
+      final imageWidth = backgroundImage!.width.toDouble();
+      final imageHeight = backgroundImage!.height.toDouble();
+      final imageAspectRatio = imageWidth / imageHeight;
+      final canvasAspectRatio = size.width / size.height;
+
+      double drawWidth;
+      double drawHeight;
+      double offsetX = 0;
+      double offsetY = 0;
+
+      if (imageAspectRatio > canvasAspectRatio) {
+        drawWidth = size.width;
+        drawHeight = size.width / imageAspectRatio;
+        offsetY = (size.height - drawHeight) / 2;
+      } else {
+        drawHeight = size.height;
+        drawWidth = size.height * imageAspectRatio;
+        offsetX = (size.width - drawWidth) / 2;
+      }
+
+      final srcRect = Rect.fromLTWH(0, 0, imageWidth, imageHeight);
+      final dstRect = Rect.fromLTWH(offsetX, offsetY, drawWidth, drawHeight);
+
       canvas.drawImageRect(
         backgroundImage!,
-        Rect.fromLTWH(0, 0, backgroundImage!.width.toDouble(), backgroundImage!.height.toDouble()),
-        rect,
-        Paint(),
+        srcRect,
+        dstRect,
+        Paint()..filterQuality = FilterQuality.high,
       );
-    } else {
-      canvas.drawRect(rect, Paint()..color = Colors.white);
     }
 
     for (final stroke in [...strokes, currentStroke]) {
@@ -203,7 +269,7 @@ class DrawingPainter extends CustomPainter {
         ..style = PaintingStyle.stroke;
 
       if (stroke.first.isEraser) {
-        paint.blendMode = BlendMode.clear;
+        paint.color = Colors.white;
         paint.strokeWidth = stroke.first.strokeWidth;
       } else {
         paint.color = stroke.first.color;

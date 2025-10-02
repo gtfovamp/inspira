@@ -78,34 +78,42 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            context.go(AppRouter.home);
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-                margin: const EdgeInsets.all(16),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is AuthAuthenticated) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.go(AppRouter.home);
-            });
-          }
-          return Stack(
-            children: [
-              _buildMainContent(context, state),
-              if (state is AuthLoading) const LoadingWidget(),
-            ],
-          );
-        },
+      body: CustomScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: BlocConsumer<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthAuthenticated) {
+                  context.go(AppRouter.home);
+                } else if (state is AuthError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.all(16),
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                if (state is AuthAuthenticated) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go(AppRouter.home);
+                  });
+                }
+                return Stack(
+                  children: [
+                    _buildMainContent(context, state),
+                    if (state is AuthLoading) const LoadingWidget(),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -116,7 +124,7 @@ class _LoginViewState extends State<LoginView> {
       height: double.infinity,
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/background.png'),
+          image: AssetImage('assets/images/background.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -128,10 +136,11 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 150),
+                const SizedBox(height: 100),
                 _buildTitle(),
                 const SizedBox(height: 20),
                 _buildForm(),
+                const SizedBox(height: 15),
                 const Spacer(),
                 _buildButtons(context),
               ],

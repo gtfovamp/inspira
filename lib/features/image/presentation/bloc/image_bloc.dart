@@ -5,7 +5,6 @@ import '../../domain/usecases/image_usecases.dart';
 import 'image_event.dart';
 import 'image_state.dart';
 
-
 class ImageBloc extends Bloc<ImageEvent, ImageState> {
   final SaveImageUseCase saveImageUseCase;
   final GetImageUseCase getImageUseCase;
@@ -20,10 +19,12 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
     on<LoadImageEvent>(_onLoadImage);
   }
 
-  Future<void> _onSaveImage(SaveImageEvent event, Emitter<ImageState> emit) async {
+  Future<void> _onSaveImage(
+    SaveImageEvent event,
+    Emitter<ImageState> emit,
+  ) async {
     emit(ImageLoading());
 
-    // Конвертируем Uint8List в base64 строку
     final base64String = base64Encode(event.imageData);
 
     final params = SaveImageParams(
@@ -35,32 +36,30 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
     final result = await saveImageUseCase(params);
 
     result.fold(
-          (failure) async {
+      (failure) async {
         emit(ImageError(failure.message));
-        // Показываем уведомление об ошибке
         await notificationService.showImageSaveErrorNotification();
       },
-          (imageId) async {
+      (imageId) async {
         emit(ImageSaveSuccess(imageId));
-        // Показываем уведомление об успешном сохранении
         await notificationService.showImageSavedNotification();
       },
     );
   }
 
-  Future<void> _onLoadImage(LoadImageEvent event, Emitter<ImageState> emit) async {
+  Future<void> _onLoadImage(
+    LoadImageEvent event,
+    Emitter<ImageState> emit,
+  ) async {
     emit(ImageLoading());
 
-    final params = GetImageParams(
-      imageId: event.imageId,
-      userId: event.userId,
-    );
+    final params = GetImageParams(imageId: event.imageId, userId: event.userId);
 
     final result = await getImageUseCase(params);
 
     result.fold(
-          (failure) => emit(ImageError(failure.message)),
-          (image) => emit(ImageLoadSuccess(image.image)),
+      (failure) => emit(ImageError(failure.message)),
+      (image) => emit(ImageLoadSuccess(image.image)),
     );
   }
 }

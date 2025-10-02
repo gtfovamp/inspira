@@ -11,7 +11,7 @@ class AppBackground extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Color(0xFF141414),
         image: DecorationImage(
-          image: AssetImage('assets/background.png'),
+          image: AssetImage('assets/images/background.png'),
           fit: BoxFit.cover,
         ),
       ),

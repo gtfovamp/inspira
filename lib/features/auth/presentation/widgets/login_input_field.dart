@@ -77,26 +77,26 @@ class _AuthInputFieldState extends State<AuthInputField> {
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 blurRadius: 40,
                 offset: const Offset(0, 1),
                 blurStyle: BlurStyle.inner,
               ),
               BoxShadow(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 0),
                 spreadRadius: -5,
               ),
               BoxShadow(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 blurRadius: 30,
                 offset: const Offset(0, 0),
                 spreadRadius: -3,
               ),
               if (_isFocused)
                 BoxShadow(
-                  color: const Color(0xFF8924E7).withOpacity(0.3),
+                  color: const Color(0xFF8924E7).withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 0),
                   spreadRadius: 0,
@@ -106,7 +106,7 @@ class _AuthInputFieldState extends State<AuthInputField> {
           child: Container(
             decoration: BoxDecoration(
               image: const DecorationImage(
-                image: AssetImage('assets/widget_cover.png'),
+                image: AssetImage('assets/images/widget_cover.png'),
                 fit: BoxFit.cover,
                 opacity: 0.25,
               ),
